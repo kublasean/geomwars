@@ -1,0 +1,185 @@
+<hmtl>
+  <head>
+    <title>shaderart</title>
+    <script src="sylvester.js"></script>
+    <script src="gl_main.js"></script>
+    <script src="gl_util.js"></script>
+    <script src="gl_transforms.js"></script>
+    <script src="actions.js"></script>
+    <script src="enemy.js"></script>
+    <script src="level.js"></script>
+    <script src="map.js"></script>
+    <script src="shaders.js"></script>
+    <script src="model.js"></script>
+    <script src="player.js"></script>
+    <script src="math.js"></script>
+    <script src="grid.js"></script>
+    <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      width: 100%;
+      height: 100%;
+      background-color: grey;
+      overflow: hidden;
+    }
+      canvas {
+        width: 100%;
+        height: 100%;
+        background-color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="glcanvas">canvas not supported</canvas>
+    <script id="gridFrag" type="x-shader/x-fragment">
+    	#ifdef GL_OES_standard_derivatives
+    		#extension GL_OES_standard_derivatives : enable
+    	#endif
+    	precision mediump float;
+
+      varying vec4      v_color;
+      varying vec3      v_pos;
+      varying vec4      v_bounds;
+      varying float     v_drop;
+
+      void main(void) {
+        vec4 bounds = v_bounds;
+        vec4 color = v_color;
+        if (v_drop != 1.)
+          discard;
+        if (v_pos.x < v_bounds[0] || v_pos.x > v_bounds[1]
+            || v_pos.y < v_bounds[2] || v_pos.y > v_bounds[3]) {
+          discard;
+        }
+
+
+        gl_FragColor = color;
+    	}
+    </script>
+
+    <script id="gridVert" type="x-shader/x-vertex">
+    	precision mediump float;
+
+      attribute float vertexId;
+
+      uniform mat4      u_projection;
+      uniform mat4      u_view;
+      uniform mat4      u_model;
+      uniform vec2      mouse;
+      uniform vec2      resolution;
+      uniform vec4      u_bounds;
+      uniform vec3      push_points[16];
+      uniform float     time;
+      uniform float     vertexCount;
+      //uniform int       flip;
+      varying vec4      v_color;
+      varying vec3      v_pos;
+      varying vec4      v_bounds;
+      varying float     v_drop;
+
+      vec2 getOffset(vec2 a, vec2 b, float scalar) {
+        vec2 dir = b-a;
+        float dist = length(dir);
+        //if (dist == 0.)
+          //return vec2(0,0);
+        //else
+          vec2 u_dir = dir / dist;
+        return scalar * u_dir;
+      }
+
+      vec2 getMouse(vec2 m, vec2 res) {
+        m.x = m.x / res.x * 2. - 1.;
+        m.y = (1. - m.y / res.y) * 2. - 1.;
+        return m;
+      }
+
+    	void main(void) {
+        float aspect = resolution.x / resolution.y;
+        float vc = floor(vertexCount);
+        float down = floor(sqrt(1./aspect*vc));
+        float across = floor(vc / down);
+        float x = mod(vertexId, across);
+        float y = floor(vertexId / across);
+
+        v_drop = 0.;
+          if (x > 0.) {
+            v_drop = 1.;
+        }
+
+
+
+        float u = x / (across - 1.);
+        float v = y / (across - 1.);
+        float ux = u*2.-1.;
+        float vy = v*aspect*2.-1.;
+
+        vec2 pos = vec2(ux, vy);
+        pos *= resolution/2.;
+        pos *= 1.3;
+        vec4 position = vec4(pos, -1, 1);
+        position = u_model * position;
+        vec2 offsetSum = vec2(0,0);
+
+        for (int i=0; i<16; i++) {
+          offsetSum += getOffset(push_points[i].xy, position.xy, push_points[i].z);
+        }
+        position.xy += offsetSum;
+
+        gl_PointSize = 10.0;
+        //gl_PointSize *= 30. / across;
+
+
+        position = u_projection * u_view * position;
+
+        gl_Position = position;
+        v_pos = position.xyz;
+        v_bounds.x = (u_projection * u_view * vec4(u_bounds.x,0,0,1)).x;
+        v_bounds.y = (u_projection * u_view * vec4(u_bounds.y,0,0,1)).x;
+        v_bounds.z = (u_projection * u_view * vec4(0,u_bounds.z,0,1)).y;
+        v_bounds.w = (u_projection * u_view * vec4(0,u_bounds.w,0,1)).y;
+        v_color = vec4(0.5,0.5,0.5,1);
+
+
+    	}
+    </script>
+
+    <script id="FragmentShader2D" type="x-shader/x-fragment">
+    	#ifdef GL_OES_standard_derivatives
+    		#extension GL_OES_standard_derivatives : enable
+    	#endif
+    	precision mediump float;
+
+      uniform vec4      u_color;
+
+    	void main(void) {
+    		gl_FragColor = u_color;
+    	}
+    </script>
+
+    <script id="VertexShader2D" type="x-shader/x-vertex">
+    	precision mediump float;
+
+    	attribute vec4		a_position;
+      uniform mat4      u_projection;
+      uniform mat4      u_view;
+      uniform mat4      u_model;
+
+    	void main(void) {
+        gl_Position = u_projection * u_view * u_model * a_position;
+    	}
+    </script>
+    <script>
+      //set up webgl context
+      function setup() {
+        var canvas = document.getElementById("glcanvas");
+        var gl = canvas.getContext("webgl");
+        if (!gl)
+          return;
+        main(gl);
+      }
+      setup();
+    </script>
+  </body>
+</html>
