@@ -82,11 +82,14 @@
       vec2 getOffset(vec2 a, vec2 b, float scalar) {
         vec2 dir = b-a;
         float dist = length(dir);
-        //if (dist == 0.)
-          //return vec2(0,0);
-        //else
-          vec2 u_dir = dir / dist;
+        vec2 u_dir = dir / dist;
         return scalar * u_dir;
+      }
+      vec2 getOffset2(vec2 a, vec2 b, float scalar) {
+        vec2 dir = b-a;
+        float dist = length(dir);
+        vec2 u_dir = dir / dist;
+        return scalar * u_dir * 2.0 / dist;
       }
 
       vec2 getMouse(vec2 m, vec2 res) {
@@ -117,13 +120,16 @@
 
         vec2 pos = vec2(ux, vy);
         pos *= resolution/2.;
-        pos *= 1.3;
+        pos *= 2.0;
         vec4 position = vec4(pos, -1, 1);
         position = u_model * position;
         vec2 offsetSum = vec2(0,0);
 
         for (int i=0; i<16; i++) {
-          offsetSum += getOffset(push_points[i].xy, position.xy, push_points[i].z);
+          position.xy += getOffset(push_points[i].xy, position.xy, push_points[i].z);
+        }
+        for (int i=0; i<16; i++) {
+          offsetSum += getOffset2(push_points[i].xy, position.xy, push_points[i].z);
         }
         position.xy += offsetSum;
 

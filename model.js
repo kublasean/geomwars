@@ -27,7 +27,7 @@ draw: function(model, proj, view) {
   setAttributes(model.shader.attribSetters, model.attribs);
 
   if (model.points)
-    gl.drawArrays(gl.LINES, 0, model.numtri);
+    gl.drawArrays(gl.LINE_STRIP, 0, model.numtri);
   else
   gl.drawArrays(gl.TRIANGLES, 0, model.numtri);
 },

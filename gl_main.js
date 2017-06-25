@@ -8,6 +8,7 @@ var camera = {
   target: [0,0,0]
 }
 var enemies = [];
+var bholes = [];
 var shader2D;
 
 //graphics context variables
@@ -48,7 +49,7 @@ function beginDemo() {
   setMouseEventCallbacks(gl.canvas);
 
 
-  gl.clearColor(0.6, 0.6, 0.6, 1.0);
+  gl.clearColor(0.9, 0.9, 0.9, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.clearDepth(1.0);
   gl.enable(gl.DEPTH_TEST);
@@ -65,6 +66,7 @@ function drawScene() {
 	//scene updates
   canvasResize();
   updateKeys();
+  bholes = [];
   var newView = updateCamera(GC.oldView);
 
   var proj = makeOrtho(-GC.width/2.0 * GC.zoom, GC.width/2.0 * GC.zoom, -GC.height/2.0 * GC.zoom, GC.height/2.0 * GC.zoom, GC.near, GC.far);
@@ -177,7 +179,7 @@ setMouseEventCallbacks = function(canvas){
 }
 
 //handle mousedown
-mouseDown = function(event){
+mouseDown = function(event) {
     GC.mouseDown = true;
     GC.mouseX = event.clientX;
     GC.mouseY = event.clientY;
