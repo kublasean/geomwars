@@ -5,8 +5,7 @@ function Player (shader) {
   this.uniforms =     null;
   this.mvMatrix =     null;
 
-  this.alive =        true;
-  this.dead =         false;
+  this.lives =        2;
 
   this.translation =  [[0,0,0],[0,0,0]];
   this.rotation =     [ [[0,[0,0,1]]], [[0,[0,0,1]]] ];
@@ -46,7 +45,7 @@ Player.prototype.update = function(view, map) {
 
   Model.updateActions(this);
 
-  if (this.dead)
+  if (this.lives <= 0)
     return true;
 
   // determine orientation of the ship
@@ -68,7 +67,8 @@ Player.prototype.update = function(view, map) {
     var dir = bholes[i].position.subtract(this.position).toUnitVector();
     var dist = bholes[i].position.distanceFrom(this.position);
     if (dist < this.radius*this.scale + bholes[i].radius*bholes[i].scale) {
-      this.alive = false;
+      this.lives -= 1;
+      GC.level.spawnPatterns.unshift(new clearScreen());
       break;
     }
 
@@ -84,7 +84,8 @@ Player.prototype.update = function(view, map) {
   // check if touching enemy
   for (var i=0; i<enemies.length; i++) {
     if (Model.touching(this, enemies[i]) && enemies[i].alive) {
-      this.alive = false;
+      this.lives -= 1;
+      GC.level.spawnPatterns.unshift(new clearScreen());
       break;
     }
   }

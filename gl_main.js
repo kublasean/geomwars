@@ -27,7 +27,6 @@ GC.oldProj = null;
 //UI variables
 UI.score = null;
 UI.mult = null;
-UI.lives = null;
 UI.bombs = null;
 
 function main(glcontext) {
@@ -40,9 +39,11 @@ function beginDemo() {
   shader2D  = new Shader("VertexShader2D", "FragmentShader2D");
   star2D    = new Shader("VertexShader2D_STAR", "FragmentShader2D_STAR");
 
-  GC.level = new Level(1);
+
 	var hero = new Player(shader2D);
   GC.hero = hero;
+
+  GC.level = new Level(1);
 
   GC.map = new Map();
   var main = new MapSegment(shader2D);
@@ -100,7 +101,6 @@ function drawScene() {
   GC.level.update();
   GC.hero.gun.update(view, GC.map, GC.hero.translation[0]);
 	updateEnemies(view, GC.map);
-
   if(GC.hero.update(view, GC.map))
     clearInterval(GC.game);
   updateBholes(view, GC.map);
@@ -205,7 +205,7 @@ function updateCamera(view) {
 function updateUI() {
   UI.score.innerText = GC.score;
   UI.mult.innerText = GC.mult;
-  UI.lives.innerText = GC.lives;
+  UI.lives.innerText = GC.hero.lives;
   UI.bombs.innerText = GC.bombs;
 }
 

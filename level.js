@@ -5,8 +5,12 @@ function Level(levelNumber) {
   this.update = function() {
     if (this.spawnPatterns.length == 0)
       return;
-    if (this.spawnPatterns[0].update())
+    if (this.spawnPatterns[0].update()) {
       this.spawnPatterns.shift();
+    if (enemies.length == 0) {
+      this.spawnPatterns.push(new rectangle([0,0], [10,10], 1));
+    }
+  }
   }
 
   switch(levelNumber) {
@@ -27,7 +31,8 @@ Level.prototype.levelOne = function() {
   var wait2 = new waitFrames(60);
   var rect = new rectangle([0,0], [10,10], 1);
   var bholetest = new random(3, [[-50,50],[-50,50]],0);
-  this.spawnPatterns.push(bholetest, test, test1, test2, test3);
+  GC.hero.lives = 5;
+  this.spawnPatterns.push(rect);
 }
 
 function inLineOverInterval(startpoint, endpoint, endCount, freq, numPerSpawn, type) {
@@ -171,5 +176,18 @@ function spawnEnemy(spawnPoint, type) {
   }
   else {
     enemies.push(E);
+  }
+}
+
+function clearScreen() {
+  var startcount = 0;
+  var endcount = 120;
+
+  enemies.forEach(function(E,i,arr) { E.alive = false; });
+  bholes.forEach(function(E,i,arr) { E.alive = false; E.scale = 0.0; });
+
+  this.update = function() {
+    startcount++;
+    return startcount == endcount;
   }
 }
