@@ -26,10 +26,12 @@ draw: function(model, proj, view) {
   setUniforms(model.shader.uniformSetters, model.uniforms);
   setAttributes(model.shader.attribSetters, model.attribs);
 
-  if (model.points)
+  if (model.actuallyPoints) 
+    gl.drawArrays(gl.POINTS, 0, model.numtri)
+  else if (model.points)                //var name is a misnomer, like numtri
     gl.drawArrays(gl.LINE_STRIP, 0, model.numtri);
   else
-  gl.drawArrays(gl.TRIANGLES, 0, model.numtri);
+    gl.drawArrays(gl.TRIANGLES, 0, model.numtri);
 },
 
 updateActions: function(model) {

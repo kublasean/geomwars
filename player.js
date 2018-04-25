@@ -20,7 +20,7 @@ function Player (shader) {
   this.radius =       1;
   this.center =       [0,0,0,1];
   this.numtri =       3;
-  this.delta =        0.5;
+  this.delta =        0.7;
 
 
   this.gun =          new Gun(shader);
@@ -60,6 +60,25 @@ Player.prototype.update = function(view, map) {
   this.viewPosition = Vector.create(view.multiply(worldPosition).flatten().slice(0,2));
   map.adjustModelVelocity(this,0,0);
 
+
+  for (var i=0; i<bholes.length; i++) {
+    if (bholes[i].gravity <= 0.0) {
+      continue;
+    }
+    var dir = bholes[i].position.subtract(this.position).toUnitVector();
+    var dist = bholes[i].position.distanceFrom(this.position);
+    if (dist < this.radius*this.scale + bholes[i].radius*bholes[i].scale) {
+      this.alive = false;
+      break;
+    }
+
+    var factor = bholes[i].gravityRadius / (dist * 5) * bholes[i].gravity;
+    if (factor > 0.7) {
+      factor = 0.7;
+    }
+    this.velocity = this.velocity.add(dir.multiply(factor));
+  }
+
  Model.updateTranslation(this);
 
   // check if touching enemy
@@ -69,6 +88,8 @@ Player.prototype.update = function(view, map) {
       break;
     }
   }
+
+
 
   return false;
 }
@@ -132,7 +153,7 @@ function Bullet(shader, translation, angle) {
   this.radius = 1;
 
   this.position = null;
-  this.delta = 2.0;
+  this.delta = GC.hero.delta * 2.3;
   this.velocity = Vector.create([0,0]);
 
   this.numtri = 3;
@@ -152,7 +173,7 @@ function Bullet(shader, translation, angle) {
   this.uniforms = {
     u_projection: null,
     u_model: null,
-    u_color: [0.0, 0.0, 0.0, 1.0]
+    u_color: [1.0, 1.0, 1.0, 1.0]
   }
 }
 
@@ -167,7 +188,17 @@ Bullet.prototype.update = function(view, map) {
 
   for (var i=0; i<enemies.length; i++) {
     if (Model.touching(this, enemies[i])) {
+      if (enemies[i].alive) {
+        GC.score += 1.0 * GC.mult;
+      }
       enemies[i].alive = false;
+
+      return true;
+    }
+  }
+  for (var i=0; i<bholes.length; i++) {
+    if (Model.touching(this, bholes[i])) {
+      bholes[i].alive = false;
       return true;
     }
   }

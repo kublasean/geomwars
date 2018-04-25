@@ -1,6 +1,8 @@
 <hmtl>
   <head>
-    <title>shaderart</title>
+    <title>Geometry Wars</title>
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stars.css">
     <script src="sylvester.js"></script>
     <script src="gl_main.js"></script>
     <script src="gl_util.js"></script>
@@ -14,25 +16,65 @@
     <script src="player.js"></script>
     <script src="math.js"></script>
     <script src="grid.js"></script>
+    <script src="stars.js"></script>
     <style>
-    body, html {
+    body {
       margin: 0;
       padding: 0;
       border: 0;
       width: 100%;
       height: 100%;
-      background-color: grey;
       overflow: hidden;
     }
-      canvas {
-        width: 100%;
-        height: 100%;
-        background-color: white;
+    canvas {
+      width: 100%;
+      height: 100%;
       }
+    .score {
+      position: absolute;
+      margin: 10px;
+      padding: 10px;
+      right: 8px;
+      top: 8px;
+      border: 1px solid black;
+      background-color: rgba(255,0,0,0.7);
+      color: black;
+    }
     </style>
   </head>
   <body>
-    <canvas id="glcanvas">canvas not supported</canvas>
+
+    <canvas id="glcanvas" style="z-index: 1">canvas not supported</canvas>
+     <!---pure css stars from: https://codepen.io/saransh/pen/BKJun-->
+
+    <div id="start_screen" style="display: none;">
+    <div id='stars'></div>
+    <div id='stars2'></div>
+    <div id='stars3'></div>
+    <div id='title' style="background-attachment: attached">
+      <span>
+        GEOMETRY WARS
+      </span>
+    </div>
+    </div>
+
+
+
+    <div class="score">
+      <table>
+        <tr>
+          <td>score</td><td id="score">0</td>
+        </tr>
+        <tr>
+          <td>multiplier</td><td id="mult">0</td>
+        </tr>
+        <tr>
+          <td>lives</td><td id="lives">1</td>
+        </tr>
+        <tr>
+          <td>bombs</td><td id="bombs">0</td>
+        </tr>
+    </div>
     <script id="gridFrag" type="x-shader/x-fragment">
     	#ifdef GL_OES_standard_derivatives
     		#extension GL_OES_standard_derivatives : enable
@@ -126,10 +168,7 @@
         vec2 offsetSum = vec2(0,0);
 
         for (int i=0; i<16; i++) {
-          position.xy += getOffset(push_points[i].xy, position.xy, push_points[i].z);
-        }
-        for (int i=0; i<16; i++) {
-          offsetSum += getOffset2(push_points[i].xy, position.xy, push_points[i].z);
+          offsetSum += getOffset(push_points[i].xy, position.xy, push_points[i].z);
         }
         position.xy += offsetSum;
 
@@ -174,6 +213,36 @@
 
     	void main(void) {
         gl_Position = u_projection * u_view * u_model * a_position;
+    	}
+    </script>
+    <script id="FragmentShader2D_STAR" type="x-shader/x-fragment">
+    	#ifdef GL_OES_standard_derivatives
+    		#extension GL_OES_standard_derivatives : enable
+    	#endif
+    	precision mediump float;
+
+      uniform vec4      u_color;
+      varying float     v_color;
+
+    	void main(void) {
+    		gl_FragColor = vec4(v_color * u_color.xyz, 1.0);
+    	}
+    </script>
+    <script id="VertexShader2D_STAR" type="x-shader/x-vertex">
+    	precision mediump float;
+
+    	attribute vec4		a_position;
+      attribute float     a_size;
+      attribute float     a_color;
+      uniform mat4      u_projection;
+      uniform mat4      u_view;
+      uniform mat4      u_model;
+      varying float     v_color;
+
+    	void main(void) {
+        gl_PointSize = a_size;
+        gl_Position = u_projection * u_view * u_model * a_position;
+        v_color = a_color;
     	}
     </script>
     <script>

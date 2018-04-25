@@ -2,6 +2,8 @@
 
 var gl = null;
 var GC = {};
+var UI = {};
+
 var keys = [];
 var camera = {
   position: [0,0,1],
@@ -22,6 +24,11 @@ GC.fps = 30;
 GC.oldView = null;
 GC.oldProj = null;
 
+//UI variables
+UI.score = null;
+UI.mult = null;
+UI.lives = null;
+UI.bombs = null;
 
 function main(glcontext) {
   gl = glcontext;
@@ -31,6 +38,7 @@ function main(glcontext) {
 
 function beginDemo() {
   shader2D  = new Shader("VertexShader2D", "FragmentShader2D");
+  star2D    = new Shader("VertexShader2D_STAR", "FragmentShader2D_STAR");
 
   GC.level = new Level(1);
 	var hero = new Player(shader2D);
@@ -40,6 +48,16 @@ function beginDemo() {
   var main = new MapSegment(shader2D);
   GC.map.segments.push(main);
 
+  canvasResize();
+  GC.stars1 = new Stars(star2D, -1, [0.3, 3.0], 0.01);
+  //GC.stars1.uniforms.u_color[0] = 0.0;
+  GC.stars2 = new Stars(star2D, -1, [3.1, 5.0], 0.05);
+  //GC.stars1.uniforms.u_color[1] = 0.0;
+  GC.stars3 = new Stars(star2D, -1, [5.1, 8.0], 0.08);
+  //GC.stars1.uniforms.u_color[2] = 0.0;
+
+  GC.score = 0; GC.mult = 1; GC.lives = 1; GC.bombs = 0;
+
   spawnGrid();
 
   //setup event callbacks
@@ -47,9 +65,13 @@ function beginDemo() {
   document.onkeyup = keyUp;
   window.onresize = windowResize;
   setMouseEventCallbacks(gl.canvas);
+  UI.score = document.getElementById("score");
+  UI.mult = document.getElementById("mult");
+  UI.lives = document.getElementById("lives");
+  UI.bombs = document.getElementById("bombs");
 
 
-  gl.clearColor(0.9, 0.9, 0.9, 1.0);
+  gl.clearColor(27/255.0, 39/255.0, 53/255.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.clearDepth(1.0);
   gl.enable(gl.DEPTH_TEST);
@@ -66,7 +88,7 @@ function drawScene() {
 	//scene updates
   canvasResize();
   updateKeys();
-  bholes = [];
+  updateUI();
   var newView = updateCamera(GC.oldView);
 
   var proj = makeOrtho(-GC.width/2.0 * GC.zoom, GC.width/2.0 * GC.zoom, -GC.height/2.0 * GC.zoom, GC.height/2.0 * GC.zoom, GC.near, GC.far);
@@ -78,20 +100,35 @@ function drawScene() {
   GC.level.update();
   GC.hero.gun.update(view, GC.map, GC.hero.translation[0]);
 	updateEnemies(view, GC.map);
+
   if(GC.hero.update(view, GC.map))
     clearInterval(GC.game);
+  updateBholes(view, GC.map);
 
   //model draws
   gl.clear(gl.COLOR_BUFFER_BIT);
   //GC.map.draw(proj, view);
+
   drawGrid(proj, view);
   Model.draw(GC.hero, proj, view);
   GC.hero.gun.draw(proj, view);
   drawEnemies(proj, view);
 
+  Model.draw(GC.stars1, proj, view);
+  Model.draw(GC.stars2, proj, view);
+  Model.draw(GC.stars3, proj, view);
+
   GC.oldView = view;
 }
 
+function updateBholes(view, map) {
+  for (var i=0; i<bholes.length; i++) {
+    if (bholes[i].update(view, map)) {
+      bholes.splice(i,1);
+      i--;
+    }
+  }
+}
 function updateEnemies(view, map) {
   for (var i=0; i<enemies.length; i++) {
     if (enemies[i].update(view, map)) {
@@ -103,6 +140,7 @@ function updateEnemies(view, map) {
 
 function drawEnemies(proj, view) {
 	enemies.forEach(function(E,i,arr) { Model.draw(E, proj, view); });
+  bholes.forEach(function(E,i,arr) { Model.draw(E, proj, view); });
 }
 
 function updateKeys() {
@@ -136,7 +174,7 @@ function updateKeys() {
 }
 
 function updateCamera(view) {
-  var margin = 8;
+  var margin = 100;
   var player = GC.hero;
   var edge = Vector.create([GC.width/2.0*GC.zoom, GC.height/2.0*GC.zoom]);
   var newView = false;
@@ -151,6 +189,9 @@ function updateCamera(view) {
       if (player.velocity.elements[axis] * player.viewPosition.elements[axis] > 0) {
         camera.position[axis] += player.velocity.elements[axis] * player.delta;
         camera.target[axis] += player.velocity.elements[axis] * player.delta;
+        GC.stars1.translation[0][axis] += player.velocity.elements[axis] * GC.stars1.factor;
+        GC.stars2.translation[0][axis] += player.velocity.elements[axis] * GC.stars2.factor;
+        GC.stars3.translation[0][axis] += player.velocity.elements[axis] * GC.stars3.factor;
 				newView = true;
       }
     }
@@ -159,6 +200,13 @@ function updateCamera(view) {
   panView(1);
 
 	return newView;
+}
+
+function updateUI() {
+  UI.score.innerText = GC.score;
+  UI.mult.innerText = GC.mult;
+  UI.lives.innerText = GC.lives;
+  UI.bombs.innerText = GC.bombs;
 }
 
 /************* EVENT CALLBACKS ******************/

@@ -33,7 +33,7 @@ ricochet: function(model) {
     return true;
 
   GC.map.adjustModelVelocity(model, -1, -1);
-
+  model.velocity = model.velocity.toUnitVector();
   return false;
 },
 
@@ -158,9 +158,45 @@ evade: function(model) {
   return false;
 },
 
-bhole: function(model) {
-  bholes.push(model);
+dormant: function(model) {
+  if (model.alive)
+    return false;
+  model.alive = true;
+  model.uniforms.u_color = [0,0,0,1];
+  model.gravity = 1.0;
+  model.updateList.push(actions.health);
+  return true;
+},
+
+health: function(model) {
+  console.log(model.gravity, model.gravityRadius);
+  if (model.alive) {
+    if (model.scale < 1.0) {
+      model.scale += (1.0 - model.scale) / 30.0;
+    }
+    return false;
+  }
+  if (model.scale <= 0.5) {
+    model.dieCount = 0;
+    model.updateList.push(actions.dying);
+    return true;
+  }
+  model.alive = true;
+  model.scale -= 0.1;
+  model.gravity -= 0.1;
+  model.gravity = Math.max(0.5, model.gravity);
+  model.gravityRadius -= 1.0;
+  model.gravityRadius = Math.max(10.0, model.gravityRadius);
   return false;
+},
+
+jitter: function(model) {
+  if (!model.alive)
+    return true;
+
+  var xmov = getRandomArbitrary(-0.1, 0.1);
+  var ymov = getRandomArbitrary(-0.1, 0.1);
+  model.velocity = model.velocity.add(Vector.create([xmov, ymov]));
 },
 
 spawn: function(model) {

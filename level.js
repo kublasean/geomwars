@@ -26,8 +26,8 @@ Level.prototype.levelOne = function() {
   var wait1 = new waitUntilDead();
   var wait2 = new waitFrames(60);
   var rect = new rectangle([0,0], [10,10], 1);
-  var bholetest = new random(10, [[-50,50],[-50,50]],0);
-  this.spawnPatterns.push(bholetest);
+  var bholetest = new random(3, [[-50,50],[-50,50]],0);
+  this.spawnPatterns.push(bholetest, test, test1, test2, test3);
 }
 
 function inLineOverInterval(startpoint, endpoint, endCount, freq, numPerSpawn, type) {
@@ -166,5 +166,10 @@ function spawnEnemy(spawnPoint, type) {
     spawnPoint.push(0);
   }
   E.translation[0] = spawnPoint;
-  enemies.push(E);
+  if (type == 0) {
+    bholes.push(E);
+  }
+  else {
+    enemies.push(E);
+  }
 }

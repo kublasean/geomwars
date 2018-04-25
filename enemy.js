@@ -49,13 +49,34 @@ function Enemy (type) {
 
 Enemy.prototype.update = function(view, map) {
   this.map = map;
-
+  //console.log(this);
   if (this.spawning) {
     actions.spawn(this);
     return false;
   }
 
   Model.updateActions(this);
+
+  for (var i=0; i<bholes.length; i++) {
+    if (bholes[i].gravity <= 0.0) {
+      continue;
+    }
+    var dir = bholes[i].position.subtract(this.position).toUnitVector();
+    var dist = bholes[i].position.distanceFrom(this.position);
+    if (dist < this.radius*this.scale + bholes[i].radius*bholes[i].scale) {
+      bholes[i].scale += 0.1;
+      bholes[i].scale = Math.min(bholes[i].scale, 5.0);
+      bholes[i].gravity += 0.1;
+      bholes[i].gravityRadius += 1.0;
+      return true;
+    }
+
+    var factor = bholes[i].gravityRadius / (dist*3) * bholes[i].gravity;
+    if (factor > 4.5) {
+      factor = 4.5;
+    }
+    this.velocity = this.velocity.add(dir.multiply(factor));
+  }
 
   if (this.dead) {
     return true;
@@ -85,18 +106,37 @@ Enemy.prototype.initBhole = function() {
   this.uniforms = {
     u_projection: null,
     u_model: null,
-    u_color: [0.0, 0.0, 0.0, 1.0]
+    u_color: [1.0, 0.0, 0.0, 0.0]
+  }
+
+  this.update = function(view, map) {
+    this.map = map;
+    if (this.spawning) {
+      actions.spawn(this);
+      return false;
+    }
+    Model.updateActions(this);
+    if (this.dead) {
+      return true;
+    }
+    Model.updateWorldPosition(this);
+    Model.updateTranslation(this);
+    return false;
   }
 
   this.radius = 1;
+  this.gravityRadius = 10.0;
+  this.maxHealth = 100.0;
+  this.health = 100.0;
+  this.gravity = 0.0;
   this.spawnCount = 0;
   this.numtri = verts.length / 3;
-  this.delta = 0.1;
+  this.delta = 0.1 * GC.hero.delta;
   this.scale = 1;
   this.scale_arr = [1,1,1];
   this.shader = shader2D;
-	this.updateList.push(actions.living, actions.bhole);
 
+  this.updateList.push(actions.dormant);
   this.velocity.setElements([0, 0]);
 }
 
@@ -133,7 +173,7 @@ Enemy.prototype.initShuriken = function() {
   this.moveCount = -1;
   this.radius = 1;
   this.numtri = verts.length / 3;
-  this.delta = 0.1;
+  this.delta = 0.3 * GC.hero.delta;
   this.scale = 1;
   this.scale_arr = [1,1,1];
   this.shader = shader2D;
@@ -171,11 +211,11 @@ Enemy.prototype.initDiamond = function() {
 
   this.radius = 1;
   this.numtri = verts.length / 3;
-  this.delta = 0.2;
+  this.delta = 0.3 * GC.hero.delta;
   this.scale = 1.5;
   this.scale_arr = [1,1,1];
   this.shader = shader2D;
-	this.updateList.push(actions.living, actions.seek, actions.flex, actions.stayinmap);
+	this.updateList.push(actions.living, actions.seek, actions.jitter, actions.flex, actions.stayinmap);
 
   this.velocity.setElements([0,0]);
 }
@@ -208,7 +248,7 @@ Enemy.prototype.initSquare = function() {
 
   this.radius = 1;
   this.numtri = verts.length / 3;
-  this.delta = 0.35;
+  this.delta = 0.8 * GC.hero.delta;
   this.scale = 1;
   this.scale_arr = [1,1,1];
   this.shader = shader2D;
@@ -245,7 +285,7 @@ Enemy.prototype.initMotherfucker = function() {
 
   this.radius = 1;
   this.numtri = verts.length / 3;
-  this.delta = 0.35;
+  this.delta = 0.8 * GC.hero.delta;
   this.scale = 1;
   this.scale_arr = [1,1,1];
   this.shader = shader2D;

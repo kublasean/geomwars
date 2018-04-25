@@ -42,7 +42,7 @@ function drawGrid(proj, view) {
     var pos = bholes[j].position.elements;
     GC.grid.uniforms.push_points[i*3] = pos[0];
     GC.grid.uniforms.push_points[i*3+1] = pos[1];
-    GC.grid.uniforms.push_points[i*3+2] = -1.5;
+    GC.grid.uniforms.push_points[i*3+2] = bholes[j].gravity*-1;
   }
   for (var j=GC.hero.gun.bullets.length-1; j>=0 && i<16; i++, j--) {
     var pos = GC.hero.gun.bullets[j].position.elements;
