@@ -32,6 +32,7 @@
       }
     .score {
       position: absolute;
+      display: none;
       margin: 10px;
       padding: 10px;
       right: 8px;
@@ -40,14 +41,43 @@
       background-color: rgba(255,0,0,0.7);
       color: black;
     }
+		.playdiv {
+			position: absolute;
+			top: 40%;
+			left: 0;
+			right: 0;
+			color: #FFF;
+			text-align: center;
+			font-family: "lato", sans-serif;
+			font-weight: 300;
+			font-size: 50px;
+			letter-spacing: 10px;
+			margin-top: 0px;
+			padding: 50px;
+			border: none;
+		}
+		.playbutton {
+			color: #1b2735;
+			background-color: white;
+			text-align: center;
+			font-family: "lato", sans-serif;
+			font-weight: 300;
+			font-size: 50px;
+			letter-spacing: 10px;
+			border: none;
+		}
+		.playbutton:hover {
+			box-shadow: 0px 0px 50px 0px white;
+		}
+
     </style>
   </head>
   <body>
 
-    <canvas id="glcanvas" style="z-index: 1">canvas not supported</canvas>
+
      <!---pure css stars from: https://codepen.io/saransh/pen/BKJun-->
 
-    <div id="start_screen" style="display: none;">
+    <div id="start_screen">
     <div id='stars'></div>
     <div id='stars2'></div>
     <div id='stars3'></div>
@@ -56,11 +86,16 @@
         GEOMETRY WARS
       </span>
     </div>
+		<div class="playdiv">
+			<span>
+				<button class="playbutton" onclick="setup()">play</button>
+			</span>
     </div>
+		</div>
 
+    <canvas id="glcanvas" style="z-index: 1">canvas not supported</canvas>
 
-
-    <div class="score">
+    <div class="score" id="scorecard">
       <table>
         <tr>
           <td>score</td><td id="score">0</td>
@@ -248,13 +283,18 @@
     <script>
       //set up webgl context
       function setup() {
+        var load_scr = document.getElementById("start_screen");
+        var score = document.getElementById("scorecard");
+        start_screen.style.display = "none";
+        score.style.display = "initial";
+
         var canvas = document.getElementById("glcanvas");
         var gl = canvas.getContext("webgl");
         if (!gl)
           return;
         main(gl);
       }
-      setup();
+
     </script>
   </body>
 </html>
