@@ -4,6 +4,7 @@ dying: function(model) {
   model.dieCount += 1;
   var step = model.dieCount / 6.0;
   model.uniforms.u_color[3] = 1.0 - step;
+	model.scale = 1.0 - step;
   if (step >= 1.0) {
     model.dead = true;
     return true;

@@ -35,6 +35,7 @@ function drawGrid(proj, view) {
 
   GC.grid.uniforms.resolution = [bb[0][1]-bb[1][0], bb[1][1]-bb[1][0]];
   GC.grid.uniforms.mouse = [GC.mouseX, GC.mouseY];
+	GC.grid.uniforms.mouse = GC.hero.position.elements;
   GC.grid.uniforms.u_bounds = [bb[0][0],bb[0][1],bb[1][0],bb[1][1]];
 
   var i = 0;

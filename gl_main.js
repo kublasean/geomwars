@@ -114,6 +114,8 @@ function drawScene() {
   GC.hero.gun.draw(proj, view);
   drawEnemies(proj, view);
 
+	//stars
+	updateStars();
   Model.draw(GC.stars1, proj, view);
   Model.draw(GC.stars2, proj, view);
   Model.draw(GC.stars3, proj, view);
@@ -136,6 +138,11 @@ function updateEnemies(view, map) {
       i--;
     }
   }
+}
+function updateStars() {
+	GC.stars1.update();
+	GC.stars2.update();
+	GC.stars2.update();
 }
 
 function drawEnemies(proj, view) {
