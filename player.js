@@ -23,7 +23,7 @@ function Player (shader) {
 
 
   this.gun =          new Gun(shader);
-  this.updateList =   [actions.living];
+  this.updateList =   [];
 
   var verts = [
     -1, -1, 0,
@@ -125,6 +125,7 @@ Gun.prototype.update = function(view, map, translation) {
   }
   for (var i=0; i<this.bullets.length; i++) {
     if(this.bullets[i].update(view,map)) {
+			sparks.push(new Spark( [this.bullets[i].translation[0][0], this.bullets[i].translation[0][1]] ));
       this.bullets.splice(i,1);
       i--;
     }

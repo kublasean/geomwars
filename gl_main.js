@@ -11,7 +11,11 @@ var camera = {
 }
 var enemies = [];
 var bholes = [];
+var sparks = [];
+
+//shaders
 var shader2D;
+var spark3D;
 
 //graphics context variables
 GC.mouseDown = false;
@@ -29,6 +33,7 @@ UI.score = null;
 UI.mult = null;
 UI.bombs = null;
 
+
 function main(glcontext) {
   gl = glcontext;
   //load files/images
@@ -38,6 +43,7 @@ function main(glcontext) {
 function beginDemo() {
   shader2D  = new Shader("VertexShader2D", "FragmentShader2D");
   star2D    = new Shader("VertexShader2D_STAR", "FragmentShader2D_STAR");
+	spark3D = new Shader("VertexShader3D_Spark", "FragmentShader3D_Spark");
 
 
 	var hero = new Player(shader2D);
@@ -56,7 +62,9 @@ function beginDemo() {
   //GC.stars1.uniforms.u_color[1] = 0.0;
   GC.stars3 = new Stars(star2D, -1, [5.1, 8.0], 0.08);
   //GC.stars1.uniforms.u_color[2] = 0.0;
-
+	
+	
+	
   GC.score = 0; GC.mult = 1; GC.lives = 1; GC.bombs = 0;
 
   spawnGrid();
@@ -109,6 +117,10 @@ function drawScene() {
   gl.clear(gl.COLOR_BUFFER_BIT);
   //GC.map.draw(proj, view);
 
+	//sparks
+	updateSparks();
+	drawSparks(proj, view);
+	
   drawGrid(proj, view);
   Model.draw(GC.hero, proj, view);
   GC.hero.gun.draw(proj, view);
@@ -116,9 +128,11 @@ function drawScene() {
 
 	//stars
 	updateStars();
-  Model.draw(GC.stars1, proj, view);
-  Model.draw(GC.stars2, proj, view);
-  Model.draw(GC.stars3, proj, view);
+  //Model.draw(GC.stars1, proj, view);
+  //Model.draw(GC.stars2, proj, view);
+  //Model.draw(GC.stars3, proj, view);
+	
+	
 
   GC.oldView = view;
 }
@@ -143,6 +157,17 @@ function updateStars() {
 	GC.stars1.update();
 	GC.stars2.update();
 	GC.stars2.update();
+}
+function drawSparks(proj, view) {
+	sparks.forEach(function(E,i,arr) { Model.draw(E, proj, view); });
+}
+function updateSparks() {
+	for (var i=0; i<sparks.length; i++) {
+		if (sparks[i].update()) {
+			sparks.splice(i,1);
+			i--;
+		}
+	}
 }
 
 function drawEnemies(proj, view) {

@@ -7,9 +7,9 @@ function Level(levelNumber) {
       return;
     if (this.spawnPatterns[0].update()) {
       this.spawnPatterns.shift();
-    if (enemies.length == 0) {
+    /*if (enemies.length == 0) {
       this.spawnPatterns.push(new rectangle([0,0], [10,10], 1));
-    }
+    }*/
   }
   }
 
@@ -24,7 +24,7 @@ function Level(levelNumber) {
 
 Level.prototype.levelOne = function() {
   var test = new inLineOverInterval([0,10], [10,10], 60, 12, 1, 4);
-  var test1 = new inLine([0,-10], [0,10], 5, 1);
+  var test1 = new inLine([0,-10], [0,10], 25, 1);
   var test2 = new random(20, [[-50,50],[-50,50]],2);
   var test3 = new randomOverInterval(5, [[-50,50],[-50,50]], 20, 3);
   var wait1 = new waitUntilDead();
@@ -32,7 +32,7 @@ Level.prototype.levelOne = function() {
   var rect = new rectangle([0,0], [10,10], 1);
   var bholetest = new random(3, [[-50,50],[-50,50]],0);
   GC.hero.lives = 5;
-  this.spawnPatterns.push(rect);
+  this.spawnPatterns.push(bholetest, test1);
 }
 
 function inLineOverInterval(startpoint, endpoint, endCount, freq, numPerSpawn, type) {
@@ -181,12 +181,42 @@ function spawnEnemy(spawnPoint, type) {
 
 function clearScreen() {
   var startcount = 0;
-  var endcount = 120;
+  var endcount = 20;
+	var radius = 0;
+	
 
-  enemies.forEach(function(E,i,arr) { E.alive = false; });
-  bholes.forEach(function(E,i,arr) { E.alive = false; E.scale = 0.0; });
+  enemies = [];
+  bholes = [];
+	ripples = [];
+	
+	
 
   this.update = function() {
+		radius += 3;
+		
+		//init ripple directions, all start at player pos and move outward in circle
+		if (startcount % 20 == 0) {
+			radius = 0;
+			for (var i=0; i<16; i++) {
+				var pos = GC.hero.position.elements;
+				var angle = 360 / 16.0 * i;
+				var dir = Vector.create([ Math.cos(angle * Math.PI / 180.0),  Math.sin(angle * Math.PI / 180.0)]);
+				ripples.push(dir);
+
+				GC.grid.uniforms.push_points[i*3] = pos[0];
+				GC.grid.uniforms.push_points[i*3+1] = pos[1];
+				GC.grid.uniforms.push_points[i*3+2] = 0.01;
+			}
+		}
+		
+		for (var i=0; i<16; i++) {
+			var pos = GC.hero.position.add(ripples[i].multiply(radius)).elements;
+			//console.log(pos);
+			//var pos = GC.hero.position.elements;
+			GC.grid.uniforms.push_points[i*3] = pos[0];
+			GC.grid.uniforms.push_points[i*3+1] = pos[1];
+			GC.grid.uniforms.push_points[i*3+2] += 0.08;
+		}
     startcount++;
     return startcount == endcount;
   }
