@@ -189,6 +189,7 @@ function clearScreen() {
   bholes = [];
 	ripples = [];
 	
+	sparks.push(new Spark(spark3D_hero, GC.hero.position.elements));
 	
 
   this.update = function() {

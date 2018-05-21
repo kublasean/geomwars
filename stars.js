@@ -56,8 +56,8 @@ function Stars (shader, depth, range, factor) {
 
 /*----IMPACT SPARKS-----------*/
 
-function Spark (position) {
-  this.shader =       spark3D;
+function Spark (shader, position) {
+  this.shader =       shader;
   this.attribs =      null;
   this.uniforms =     null;
   this.mvMatrix =     null;
@@ -88,6 +88,7 @@ function Spark (position) {
 	var u;
 	var angle = 0;
 	
+	/*
 	for (u=-1.0; u<1.0; u+=0.1) {
 		angle += 3;
 		var stop = angle + 360;
@@ -96,7 +97,15 @@ function Spark (position) {
 			verts.push(u);
 			verts.push(theta);
 		}
+	}*/
+	
+	
+	for (var i=0; i<1000; i++) {
+		verts.push(getRandomArbitrary(-1.0, 1.0));
+		verts.push(getRandomArbitrary(0, 360) * (Math.PI / 180.));
 	}
+	
+	
 	
 	//console.log(verts);
 	
@@ -111,12 +120,12 @@ function Spark (position) {
     u_model: null,
     u_color: [1.0, 1.0, 1.0, 1.0],
 		u_time: 0,
-		u_radius: 0.1
+		u_radius: 1.0
   }
 	
 	this.update = function() {
 		this.time++;
-		this.uniforms.u_radius+= 1.0;
+		this.uniforms.u_radius+= 0.15;
 		this.uniforms.u_time = this.time / this.endtime;
 		
 		return this.time == this.endtime;

@@ -125,7 +125,7 @@ Gun.prototype.update = function(view, map, translation) {
   }
   for (var i=0; i<this.bullets.length; i++) {
     if(this.bullets[i].update(view,map)) {
-			sparks.push(new Spark( [this.bullets[i].translation[0][0], this.bullets[i].translation[0][1]] ));
+			sparks.push(new Spark(spark3D_bullet, [this.bullets[i].translation[0][0], this.bullets[i].translation[0][1]] ));
       this.bullets.splice(i,1);
       i--;
     }

@@ -170,7 +170,7 @@ dormant: function(model) {
 },
 
 health: function(model) {
-  console.log(model.gravity, model.gravityRadius);
+  //console.log(model.gravity, model.gravityRadius);
   if (model.alive) {
     if (model.scale < 1.0) {
       model.scale += (1.0 - model.scale) / 30.0;

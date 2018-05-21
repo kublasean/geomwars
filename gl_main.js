@@ -15,7 +15,8 @@ var sparks = [];
 
 //shaders
 var shader2D;
-var spark3D;
+var spark3D_bullet;
+var spark3D_hero;
 
 //graphics context variables
 GC.mouseDown = false;
@@ -43,7 +44,9 @@ function main(glcontext) {
 function beginDemo() {
   shader2D  = new Shader("VertexShader2D", "FragmentShader2D");
   star2D    = new Shader("VertexShader2D_STAR", "FragmentShader2D_STAR");
-	spark3D = new Shader("VertexShader3D_Spark", "FragmentShader3D_Spark");
+	spark3D_bullet = new Shader("VertexShader3D_Spark_bullet", "FragmentShader3D_Spark");
+	spark3D_hero = new Shader("VertexShader3D_Spark_hero", "FragmentShader3D_Spark");
+
 
 
 	var hero = new Player(shader2D);
@@ -62,9 +65,7 @@ function beginDemo() {
   //GC.stars1.uniforms.u_color[1] = 0.0;
   GC.stars3 = new Stars(star2D, -1, [5.1, 8.0], 0.08);
   //GC.stars1.uniforms.u_color[2] = 0.0;
-	
-	
-	
+		
   GC.score = 0; GC.mult = 1; GC.lives = 1; GC.bombs = 0;
 
   spawnGrid();
