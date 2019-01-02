@@ -3,14 +3,12 @@ function Level(levelNumber) {
   this.spawnPatterns = [];
 
   this.update = function() {
-    if (this.spawnPatterns.length == 0)
-      return;
+    if (this.spawnPatterns.length == 0) {
+      this.refresh();
+    }
     if (this.spawnPatterns[0].update()) {
       this.spawnPatterns.shift();
-    /*if (enemies.length == 0) {
-      this.spawnPatterns.push(new rectangle([0,0], [10,10], 1));
-    }*/
-  }
+    }
   }
 
   switch(levelNumber) {
@@ -18,8 +16,12 @@ function Level(levelNumber) {
       this.levelOne();
       break;
     default:
-      this.levelOne();
+      this.endless();
   }
+}
+
+Level.prototype.refresh = function () {
+  return;
 }
 
 Level.prototype.levelOne = function() {
@@ -33,6 +35,38 @@ Level.prototype.levelOne = function() {
   var bholetest = new random(3, [[-50,50],[-50,50]],0);
   GC.hero.lives = 5;
   this.spawnPatterns.push(bholetest, test1);
+
+}
+
+Level.prototype.endless = function() {
+  this.number = 10;
+  this.type = 1;
+  this.freq = 10;
+  this.wait = 500;
+  GC.hero.lives = 5;
+
+  this.refresh = function() {
+    this.spawnPatterns.push( new randomOverInterval(this.number, [[-50, 50],[-50,50]], this.freq, this.type));
+    this.spawnPatterns.push(  new waitFrames(this.wait));
+    this.number += sample([0.1, 0.1, 0.8], [-1, 0, 1]);
+    this.type = sample([0.1, 0.3, 0.3, 0.2, 0.1], [0,1,2,3,4,5]);
+    this.freq = sample([0.1,0.2,0.2,0.5], [1,5,10,20]);
+    this.wait -= 1;
+    if (this.wait < 10) { this.wait = 10; }
+  }
+}
+
+function sample(probs, items) {
+  var s = Math.random();
+  var prev = 0;
+  for (var i=0; i<items.length; i++) {
+      var prob = probs[i];
+      if (s > prev && s < prob+prev) {
+          return items[i];
+      }
+      prev += prob;
+  }
+  return null;
 }
 
 function inLineOverInterval(startpoint, endpoint, endCount, freq, numPerSpawn, type) {
@@ -133,7 +167,7 @@ function waitFrames(endcount) {
   var startcount = 0;
   this.update = function() {
     startcount++;
-    return startcount == endcount;
+    return startcount == endcount || enemies.length == 0;
   }
 }
 

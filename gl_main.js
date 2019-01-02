@@ -52,7 +52,7 @@ function beginDemo() {
 	var hero = new Player(shader2D);
   GC.hero = hero;
 
-  GC.level = new Level(1);
+  GC.level = new Level();
 
   GC.map = new Map();
   var main = new MapSegment(shader2D);

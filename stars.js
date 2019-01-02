@@ -71,7 +71,7 @@ function Spark (shader, position) {
 
   this.actuallyPoints = true;
 	this.time = 0;
-	this.endtime = 30.;
+	this.endtime = 15.;
 
 	
 	function getXcoord(theta, u, radius) {
@@ -100,7 +100,7 @@ function Spark (shader, position) {
 	}*/
 	
 	
-	for (var i=0; i<1000; i++) {
+	for (var i=0; i<100; i++) {
 		verts.push(getRandomArbitrary(-1.0, 1.0));
 		verts.push(getRandomArbitrary(0, 360) * (Math.PI / 180.));
 	}
